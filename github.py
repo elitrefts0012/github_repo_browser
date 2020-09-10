@@ -54,6 +54,8 @@ def logout(nickname):
         print('You are not logged in.')
 
 def login():    
+    if not os.path.exists('saved_username_password/'):
+        os.mkdir('saved_username_password/')
     nickname = input("Enter your nickname, 'create' to save a new account, or 'skip' to not save credentials: ")
     if nickname == 'create':
         nickname = input("Enter new nickname: ")
@@ -70,9 +72,19 @@ def login():
         read_file.close()
     else:
         print('That user does not exist, or you misspelled your command.')
-        login()
-    return "".join(username.split()), "".join(password.split())
-username, password = login()
+        return login()
+    username = "".join(username.split())
+    password = "".join(password.split())
+    h = {
+        "Authorization": f"Basic {base64.b64encode('{username}:{password}'.encode('utf-8'))}" 
+    }
+    url = f"https://api.github.com/users/{username}/repos"
+    repos = requests.get(url, headers=h).json()
+    if type(repos) == dict and repos['message'] == 'Not Found':
+        print('Those credentials are incorrect.')
+        return login()
+    return username, password, "".join(nickname.split())
+username, password, nickname = login()
 creds = f"{username}:{password}"
 base64creds = base64.b64encode(creds.encode('utf-8')) 
 h = {
