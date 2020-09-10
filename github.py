@@ -44,7 +44,7 @@ def search_directory(url):
 
 def save_username_password(username, password, nickname):
     write_file = open(f'saved_username_password/{nickname}', 'a+')
-    write_file.write(f'{username}/n{password}')
+    write_file.write(f'{username}\n{password}')
     write_file.close()
 
 def logout(nickname):
@@ -71,9 +71,8 @@ def login():
     else:
         print('That user does not exist, or you misspelled your command.')
         login()
-username = ''
-password = ''
-login()
+    return "".join(username.split()), "".join(password.split())
+username, password = login()
 creds = f"{username}:{password}"
 base64creds = base64.b64encode(creds.encode('utf-8')) 
 h = {
